@@ -14,9 +14,8 @@ Else
 	Dim strFileText
 
 	strSaveFilePath = objMyArgs(0)
-	' Need this for later to exit parsing file early
-	boolCruxLineFlag = False
 
+	' We create a file read object here, because it cannot be used for writing
 	Set objFileSystem = CreateObject("Scripting.FileSystemObject")
 	Set objSaveFileRead = objFileSystem.OpenTextFile(strSaveFilePath, 1)
 
@@ -25,15 +24,18 @@ Else
     	Dim strLine
     	strLine = objSaveFileRead.ReadLine
 
+    	' Do nothing until the crux object drop chance modifier is found. Then update drop change
 	    If InStr(strLine,"idropchange 149=""-") <> 0 Then
 	        strLine = Replace(strLine,strLine,"idropchange 149=""0.000000""")
 	        ' debug output
 	        ' WScript.Echo strLine
 	    End If
+   	    ' Recreate file structure with carriage returns since we read it in line by line
 	    strFileText = strFileText + strLine + vbCrLf
 	Loop
 	objSaveFileRead.Close
 
+	' Create file write object and regenerate the entire file with modified contents
 	Set objSaveFileWrite = objFileSystem.OpenTextFile(strSaveFilePath, 2)
 	objSaveFileWrite.WriteLine strFileText
 	objSaveFileWrite.Close
